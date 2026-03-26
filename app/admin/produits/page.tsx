@@ -578,27 +578,32 @@ export default function AdminProductsPage() {
               <div className="space-y-3 sm:space-y-4">
                 <Label className="text-base sm:text-lg font-medium">Catégories</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                  {categories.map((cat) => (
-                    <Button
-                      key={cat.id}
-                      type="button"
-                      variant="outline"
-                      className={`h-10 sm:h-12 justify-start text-xs sm:text-sm ${
-                        formData.category_ids?.includes(cat.id) 
-                          ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600" 
-                          : "hover:bg-gray-50"
-                      }`}
-                      onClick={() => {
-                        const isSelected = formData.category_ids?.includes(cat.id)
-                        const newIds = isSelected
-                          ? (formData.category_ids || []).filter(id => id !== cat.id)
-                          : [...(formData.category_ids || []), cat.id]
-                        setFormData({...formData, category_ids: newIds})
-                      }}
-                    >
-                      {cat.lebele}
-                    </Button>
-                  ))}
+                  {categories.map((cat) => {
+                    const isSelected = formData.category_ids?.includes(cat.id)
+                    return (
+                      <label
+                        key={cat.id}
+                        className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          isSelected 
+                            ? "bg-orange-500 text-white border-orange-500" 
+                            : "hover:bg-gray-50 border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            const newIds = isSelected
+                              ? (formData.category_ids || []).filter(id => id !== cat.id)
+                              : [...(formData.category_ids || []), cat.id]
+                            setFormData({...formData, category_ids: newIds})
+                          }}
+                          className="sr-only"
+                        />
+                        <span className="text-xs sm:text-sm font-medium">{cat.lebele}</span>
+                      </label>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -641,25 +646,27 @@ export default function AdminProductsPage() {
                     const sizesArray = formData.sizes.split(',').map(s => s.trim()).filter(Boolean)
                     const isSelected = sizesArray.includes(size)
                     return (
-                      <Button
+                      <label
                         key={size}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className={`h-9 sm:h-10 text-xs sm:text-sm ${
+                        className={`flex items-center justify-center h-9 sm:h-10 border rounded-lg cursor-pointer transition-colors ${
                           isSelected 
-                            ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600" 
-                            : "hover:bg-gray-50"
+                            ? "bg-orange-500 text-white border-orange-500" 
+                            : "hover:bg-gray-50 border-gray-300"
                         }`}
-                        onClick={() => {
-                          const newSizes = isSelected
-                            ? sizesArray.filter(s => s !== size)
-                            : [...sizesArray, size]
-                          setFormData({...formData, sizes: newSizes.join(', ')})
-                        }}
                       >
-                        {size}
-                      </Button>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            const newSizes = isSelected
+                              ? sizesArray.filter(s => s !== size)
+                              : [...sizesArray, size]
+                            setFormData({...formData, sizes: newSizes.join(', ')})
+                          }}
+                          className="sr-only"
+                        />
+                        <span className="text-xs sm:text-sm font-medium">{size}</span>
+                      </label>
                     )
                   })}
                 </div>

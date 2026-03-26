@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { authService } from '@/lib/auth'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -20,12 +22,10 @@ export default function AdminLoginPage() {
     setError('')
     setIsLoading(true)
 
-    // Simple admin credentials check
-    const ADMIN_EMAIL = 'admin@fc-design.com'
-    const ADMIN_PASSWORD = 'admin123'
+    // Utiliser le service d'authentification
+    const success = authService.login(email, password)
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem('admin_authenticated', 'true')
+    if (success) {
       router.push('/admin')
     } else {
       setError('Email ou mot de passe incorrect')
@@ -38,8 +38,15 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-card border border-border rounded-lg shadow-sm p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
-              <Lock className="h-8 w-8 text-primary-foreground" />
+            <div className="flex justify-center mb-4">
+              <Image 
+                src="/logo.png" 
+                alt="First Class Design Logo" 
+                width={80}
+                height={80}
+                className="w-auto h-20 object-contain"
+                priority
+              />
             </div>
             <h1 className="text-2xl font-bold">Administration</h1>
             <p className="text-sm text-muted-foreground mt-1">First Class Design</p>
@@ -85,10 +92,16 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white" disabled={isLoading}>
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              Session expire après 10 minutes d'inactivité
+            </p>
+          </div>
         </div>
       </div>
     </div>

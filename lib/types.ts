@@ -12,8 +12,7 @@ export interface Product {
   is_promo?: boolean
   category_ids: string[]
   categories?: {
-    name: string
-    slug: string
+    lebele: string
   } | null
   created_at?: string
 }
@@ -27,9 +26,8 @@ export interface CartItem {
 export interface Category {
   id: string
   lebele: string
-  slug?: string
   description?: string
-  image?: string
+  created_at?: string
 }
 
 export interface Order {

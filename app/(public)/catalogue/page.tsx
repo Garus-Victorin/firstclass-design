@@ -37,8 +37,7 @@ const priceRanges = [
 
 interface SupabaseProduct extends Product {
   categories: {
-    name: string
-    slug: string
+    lebele: string
   } | null
 }
 
@@ -111,7 +110,7 @@ const [products, setProducts] = useState<Product[]>([])
     }
 
     return filtered
-  }, [products, selectedCategories, priceRange, sortBy])
+  }, [products, selectedCategories, priceRange, sortBy, categories])
 
   const toggleCategory = (id: string) => {
     setSelectedCategories(prev =>

@@ -12,7 +12,7 @@ export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .order('name');
+    .order('lebele');
   
   if (error) throw error;
   return data || [];
@@ -39,19 +39,11 @@ export async function getProductById(id: number): Promise<Product | null> {
   return data;
 }
 
-export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
-  const { data: category } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('slug', categorySlug)
-    .single();
-
-  if (!category) return [];
-
+export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .contains('category_ids', [category.id])
+    .contains('category_ids', [categoryId])
     .order('created_at', { ascending: false });
   
   if (error) throw error;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, ReactNode } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { 
   LayoutDashboard, 
@@ -12,9 +13,11 @@ import {
   Star,
   LogOut,
   Menu,
-  X
+  X,
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { authService } from '@/lib/auth'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -31,24 +34,74 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [timeRemaining, setTimeRemaining] = useState(0)
 
   useEffect(() => {
-    // Check if user is authenticated
-    const auth = localStorage.getItem('admin_authenticated')
-    if (auth === 'true') {
-      setIsAuthenticated(true)
-    } else if (pathname !== '/admin/login') {
-      router.push('/admin/login')
+    // Vérifier l'authentification
+    const checkAuth = () => {
+      const authenticated = authService.isAuthenticated()
+      setIsAuthenticated(authenticated)
+      
+      if (!authenticated && pathname !== '/admin/login') {
+        router.push('/admin/login')
+      }
+      
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    checkAuth()
+  }, [pathname, router])
+
+  useEffect(() => {
+    // Vérifier la session toutes les 30 secondes
+    const sessionCheckInterval = setInterval(() => {
+      const authenticated = authService.isAuthenticated()
+      
+      if (!authenticated && pathname !== '/admin/login') {
+        router.push('/admin/login')
+      }
+      
+      setIsAuthenticated(authenticated)
+    }, 30000) // 30 secondes
+
+    // Mettre à jour le compteur de temps restant chaque seconde
+    const timeInterval = setInterval(() => {
+      setTimeRemaining(authService.getTimeUntilExpiration())
+    }, 1000)
+
+    // Mettre à jour l'activité lors des interactions
+    const updateActivity = () => {
+      authService.updateActivity()
+    }
+
+    // Écouter les événements d'activité
+    window.addEventListener('mousemove', updateActivity)
+    window.addEventListener('keydown', updateActivity)
+    window.addEventListener('click', updateActivity)
+    window.addEventListener('scroll', updateActivity)
+
+    return () => {
+      clearInterval(sessionCheckInterval)
+      clearInterval(timeInterval)
+      window.removeEventListener('mousemove', updateActivity)
+      window.removeEventListener('keydown', updateActivity)
+      window.removeEventListener('click', updateActivity)
+      window.removeEventListener('scroll', updateActivity)
+    }
   }, [pathname, router])
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_authenticated')
+    authService.logout()
     router.push('/admin/login')
   }
 
-  // Show login page without admin layout
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${minutes}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Afficher la page de login sans le layout admin
   if (pathname === '/admin/login') {
     return children
   }
@@ -86,7 +139,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-border">
-            <Link href="/admin" className="block">
+            <Link href="/admin" className="flex items-center gap-3">
+              <Image 
+                src="/logo.png" 
+                alt="First Class Design Logo" 
+                width={40}
+                height={40}
+                className="w-auto h-10 object-contain"
+              />
               <span className="text-lg font-bold">
                 FIRST CLASS <span className="text-accent">ADMIN</span>
               </span>
@@ -118,6 +178,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           {/* Footer */}
           <div className="p-4 border-t border-border space-y-2">
+            {/* Compteur de session */}
+            <div className="px-4 py-2 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Session: {formatTime(timeRemaining)}</span>
+              </div>
+            </div>
+            
             <Link 
               href="/"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"

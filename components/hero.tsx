@@ -21,11 +21,8 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-2xl">
-          <span className="inline-block text-accent text-sm font-semibold tracking-wider uppercase mb-4">
-            Nouvelle Collection
-          </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight text-balance">
-            L'élégance redéfinie pour vous
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-balance">
+            <span className="text-orange-500">First Class Design</span>
           </h1>
           <p className="mt-6 text-lg text-primary-foreground/80 leading-relaxed max-w-lg">
             Découvrez notre collection exclusive de vêtements premium. 

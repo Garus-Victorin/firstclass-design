@@ -1,3 +1,5 @@
+'use client'
+
 import { Hero } from '@/components/hero'
 import { CategoriesSection } from '@/components/categories-section'
 import { FeaturedProducts } from '@/components/featured-products'
@@ -5,8 +7,22 @@ import { PromoBar } from '@/components/promo-bar'
 import { ReviewSection } from '@/components/review-section'
 import { ContactSection } from '@/components/contact-section'
 import { MapPin, Clock, Phone } from 'lucide-react'
+import { useEffect } from 'react'
 
 export default function HomePage() {
+  useEffect(() => {
+    // Scroll vers la section si un hash est présent dans l'URL
+    const hash = window.location.hash
+    if (hash) {
+      const id = hash.substring(1)
+      setTimeout(() => {
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    }
+  }, [])
   // Fonction pour déterminer le statut d'ouverture
   const getOpenStatus = () => {
     const now = new Date()
@@ -126,7 +142,7 @@ export default function HomePage() {
         </div>
       </section>
       {/* Section Qui sommes-nous */}
-      <section className="py-16 lg:py-24">
+      <section id="about" className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
@@ -273,7 +289,7 @@ export default function HomePage() {
       </section>
 
       {/* Section Nous Contacter */}
-      <section className="py-16 lg:py-24 bg-muted/30">
+      <section id="contact" className="py-16 lg:py-24 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">

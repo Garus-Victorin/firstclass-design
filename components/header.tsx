@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Menu, X, ShoppingCart, MapPin, Phone } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { WHATSAPP_NUMBER, GOOGLE_MAPS_URL } from '@/lib/data'
@@ -9,20 +11,75 @@ import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
 
 const navigation = [
   { name: 'Accueil', href: '/' },
   { name: 'Catalogue', href: '/catalogue' },
-  { name: 'Homme', href: '/catalogue?category=homme' },
-  { name: 'Femme', href: '/catalogue?category=femme' },
-  { name: 'Accessoires', href: '/catalogue?category=accessoires' },
+  { name: 'À propos', href: '/#about' },
+  { name: 'Contact', href: '/#contact' },
 ]
 
 export function Header() {
   const { itemCount } = useCart()
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const [activeSection, setActiveSection] = useState('')
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['about', 'contact']
+      const scrollPosition = window.scrollY + 100
+
+      for (const section of sections) {
+        const element = document.getElementById(section)
+        if (element) {
+          const { offsetTop, offsetHeight } = element
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section)
+            return
+          }
+        }
+      }
+      setActiveSection('')
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/#')) {
+      const id = href.substring(2)
+      
+      // Si on n'est pas sur la page d'accueil, rediriger d'abord
+      if (pathname !== '/') {
+        router.push(href)
+      } else {
+        // Si on est déjà sur la page d'accueil, scroll direct
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    } else {
+      router.push(href)
+    }
+    setIsOpen(false)
+  }
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    if (href.startsWith('/#')) {
+      const section = href.substring(2)
+      return activeSection === section
+    }
+    return pathname.startsWith(href)
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -66,38 +123,66 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-8">
                   {navigation.map((item) => (
-                    <Link
+                    <button
                       key={item.name}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-lg font-medium hover:text-accent transition-colors"
+                      onClick={() => handleNavClick(item.href)}
+                      className={`text-lg font-medium text-left transition-colors ${
+                        isActive(item.href) 
+                          ? 'text-accent' 
+                          : 'hover:text-accent'
+                      }`}
                     >
                       {item.name}
-                    </Link>
+                    </button>
                   ))}
                 </nav>
               </SheetContent>
             </Sheet>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <span className="text-xl sm:text-2xl font-bold tracking-tight">
+            <div className="flex items-center gap-3">
+              <div 
+                onClick={() => router.push('/')} 
+                className="cursor-pointer relative w-10 h-10"
+              >
+                <Image 
+                  src="/logo.png" 
+                  alt="First Class Design Logo" 
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <span 
+                onClick={() => router.push('/admin/login')}
+                className="text-xl sm:text-2xl font-bold tracking-tight hidden sm:inline cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 FIRST CLASS <span className="text-accent">DESIGN</span>
               </span>
-            </Link>
+            </div>
 
             {/* Desktop navigation */}
             <nav className="hidden lg:flex items-center gap-8">
               {navigation.map((item) => (
-                <Link
+                <button
                   key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium hover:text-accent transition-colors"
+                  onClick={() => handleNavClick(item.href)}
+                  className={`text-sm font-medium transition-all duration-300 relative ${
+                    isActive(item.href)
+                      ? 'text-accent'
+                      : 'hover:text-accent'
+                  }`}
                 >
                   {item.name}
-                </Link>
+                  {isActive(item.href) && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-accent animate-in slide-in-from-left" />
+                  )}
+                </button>
               ))}
             </nav>
 

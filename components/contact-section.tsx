@@ -88,7 +88,7 @@ export function ContactSection() {
         <Button 
           asChild
           size="lg" 
-          className="w-full gap-2"
+          className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white"
         >
           <a 
             href={`https://wa.me/229${WHATSAPP_NUMBER}`}
@@ -132,7 +132,7 @@ export function ContactSection() {
             />
           </div>
 
-          <Button type="submit" className="w-full gap-2">
+          <Button type="submit" className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white">
             <Send className="h-4 w-4" />
             Envoyer le message
           </Button>

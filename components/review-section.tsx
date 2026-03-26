@@ -86,7 +86,7 @@ export function ReviewSection() {
         <Button
           onClick={() => setIsFormOpen(!isFormOpen)}
           size="lg"
-          className="gap-2"
+          className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
         >
           {isFormOpen ? (
             <>
@@ -155,7 +155,7 @@ export function ReviewSection() {
               />
             </div>
 
-            <Button type="submit" className="w-full gap-2">
+            <Button type="submit" className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white">
               <Send className="h-4 w-4" />
               Envoyer mon avis
             </Button>
