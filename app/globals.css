@@ -170,4 +170,17 @@
       transform-origin: left;
     }
   }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+  
+  .animate-bounce {
+    animation: bounce 0.8s ease-in-out infinite;
+  }
 }

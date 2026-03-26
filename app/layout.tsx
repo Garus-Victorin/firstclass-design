@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/lib/cart-context'
+import { LoadingProvider } from '@/components/loading-provider'
 import './globals.css'
 
 const playfair = Playfair_Display({ 
@@ -31,9 +32,11 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <LoadingProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </LoadingProvider>
         <Analytics />
       </body>
     </html>
