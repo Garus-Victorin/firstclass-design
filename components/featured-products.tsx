@@ -81,12 +81,12 @@ export function FeaturedProducts({
           
           <Link 
             href="/catalogue"
-            className="aspect-[3/4] min-h-[400px] sm:min-h-0 border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center gap-3 sm:gap-4 hover:border-accent hover:bg-accent/5 transition-all group"
+            className="aspect-[3/4] min-h-[400px] sm:min-h-0 bg-orange-500 rounded-lg flex flex-col items-center justify-center gap-3 sm:gap-4 hover:bg-orange-600 transition-all group shadow-lg"
           >
             <div className="text-center px-4">
-              <ArrowRight className="h-10 w-10 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-muted-foreground group-hover:text-accent transition-colors" />
-              <p className="font-semibold text-lg sm:text-base text-foreground group-hover:text-accent transition-colors">Voir tout</p>
-              <p className="text-base sm:text-sm text-muted-foreground mt-1">le catalogue</p>
+              <ArrowRight className="h-10 w-10 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-white transition-transform group-hover:translate-x-1" />
+              <p className="font-semibold text-lg sm:text-base text-white">Voir tout</p>
+              <p className="text-base sm:text-sm text-white/90 mt-1">le catalogue</p>
             </div>
           </Link>
         </div>

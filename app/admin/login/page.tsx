@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@fc-design.com"
+                placeholder="votre@email.com"
                 required
               />
             </div>
@@ -89,12 +89,6 @@ export default function AdminLoginPage() {
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-xs text-muted-foreground text-center">
-              <strong>Test:</strong> admin@fc-design.com / admin123
-            </p>
-          </div>
         </div>
       </div>
     </div>

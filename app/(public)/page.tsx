@@ -198,7 +198,7 @@ export default function HomePage() {
               <h3 className="font-semibold text-lg mb-4">Notre Histoire</h3>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Depuis notre ouverture, First Class s'est imposé comme une référence dans le monde de la mode à Cotonou. Nous sélectionnons avec soin chaque pièce pour vous offrir le meilleur de la mode contemporaine.
+                  Depuis notre ouverture, First Class Design s'est imposé comme une référence dans le monde de la mode à Cotonou. Nous sélectionnons avec soin chaque pièce pour vous offrir le meilleur de la mode contemporaine.
                 </p>
                 <p>
                   Notre équipe passionnée est à votre écoute pour vous conseiller et vous aider à trouver le style qui vous correspond. Que vous recherchiez une tenue décontractée, professionnelle ou élégante, vous trouverez votre bonheur chez First Class.
