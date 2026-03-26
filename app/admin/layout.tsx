@@ -14,7 +14,8 @@ import {
   LogOut,
   Menu,
   X,
-  Clock
+  Clock,
+  Users
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { authService } from '@/lib/auth'
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
   { name: 'Promotions', href: '/admin/promotions', icon: Tag },
   { name: 'Avis', href: '/admin/avis', icon: Star },
+  { name: 'Utilisateurs', href: '/admin/users', icon: Users },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

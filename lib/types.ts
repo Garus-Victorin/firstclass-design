@@ -47,13 +47,11 @@ export interface Order {
 
 export interface User {
   id: string
+  nom: string
+  prenom: string
   email: string
-  phone?: string
-  full_name?: string
-  role: 'admin' | 'customer'
-  is_active: boolean
-  created_at: string
-  updated_at: string
+  mot_de_passe: string
+  date_creation: string
 }
 
 export interface Review {
