@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -42,8 +42,7 @@ interface SupabaseProduct extends Product {
   } | null
 }
 
-
-export default function CataloguePage() {
+function CatalogueContent() {
   const searchParams = useSearchParams()
   const initialCategory = searchParams.get('category') || ''
   
@@ -273,5 +272,21 @@ const [products, setProducts] = useState<Product[]>([])
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CataloguePage() {
+  return (
+    <Suspense fallback={
+      <div className="py-8 lg:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">Chargement...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <CatalogueContent />
+    </Suspense>
   )
 }
