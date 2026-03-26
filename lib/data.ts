@@ -5,7 +5,7 @@ export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
 };
 
-export const WHATSAPP_NUMBER = '0196422780';
+export const WHATSAPP_NUMBER = '96422780';
 export const GOOGLE_MAPS_URL = 'https://maps.app.goo.gl/AQFAXPkYuQFZWzng7';
 
 export async function getCategories(): Promise<Category[]> {

@@ -83,6 +83,8 @@ const [products, setProducts] = useState<Product[]>([])
 
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product => {
+      const productPrice = Number(product.original_price) || 0
+      
       if (selectedCategories.length > 0) {
         const hasCategory = product.category_ids?.some(catId => 
           selectedCategories.includes(catId)
@@ -90,7 +92,7 @@ const [products, setProducts] = useState<Product[]>([])
         if (!hasCategory) return false
       }
       
-      if (product.original_price < priceRange[0] || product.original_price > priceRange[1]) {
+      if (productPrice < priceRange[0] || productPrice > priceRange[1]) {
         return false
       }
       
@@ -99,10 +101,10 @@ const [products, setProducts] = useState<Product[]>([])
 
     switch (sortBy) {
       case 'price-asc':
-        filtered.sort((a, b) => a.original_price - b.original_price)
+        filtered.sort((a, b) => (Number(a.original_price) || 0) - (Number(b.original_price) || 0))
         break
       case 'price-desc':
-        filtered.sort((a, b) => b.original_price - a.original_price)
+        filtered.sort((a, b) => (Number(b.original_price) || 0) - (Number(a.original_price) || 0))
         break
       case 'name':
         filtered.sort((a, b) => a.name.localeCompare(b.name))
@@ -252,7 +254,7 @@ const [products, setProducts] = useState<Product[]>([])
           {/* Products Grid */}
           <div className="flex-1">
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {filteredProducts.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}

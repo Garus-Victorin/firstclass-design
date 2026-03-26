@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { CartItem, Product } from './types'
 
 interface CartContextType {
@@ -11,12 +11,45 @@ interface CartContextType {
   clearCart: () => void
   total: number
   itemCount: number
+  discount: number
+  promoCode: string | null
+  setDiscount: (discount: number, code: string | null) => void
+  finalTotal: number
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
+const CART_STORAGE_KEY = 'firstclass_cart'
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isHydrated, setIsHydrated] = useState(false)
+  const [discount, setDiscountState] = useState(0)
+  const [promoCode, setPromoCode] = useState<string | null>(null)
+
+  // Charger le panier depuis localStorage au montage
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY)
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart)
+        setItems(parsedCart)
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du panier:', error)
+    }
+    setIsHydrated(true)
+  }, [])
+
+  // Sauvegarder le panier dans localStorage à chaque modification
+  useEffect(() => {
+    if (isHydrated) {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde du panier:', error)
+      }
+    }
+  }, [items, isHydrated])
 
   const addItem = useCallback((product: Product, size: string, quantity = 1) => {
     setItems(prev => {
@@ -55,14 +88,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([])
+    setDiscountState(0)
+    setPromoCode(null)
+    localStorage.removeItem(CART_STORAGE_KEY)
+  }, [])
+
+  const setDiscount = useCallback((newDiscount: number, code: string | null) => {
+    setDiscountState(newDiscount)
+    setPromoCode(code)
   }, [])
 
   const total = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + (Number(item.product.original_price) || Number(item.product.price) || 0) * item.quantity,
     0
   )
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const finalTotal = total - discount
 
   return (
     <CartContext.Provider value={{
@@ -72,7 +114,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateQuantity,
       clearCart,
       total,
-      itemCount
+      itemCount,
+      discount,
+      promoCode,
+      setDiscount,
+      finalTotal
     }}>
       {children}
     </CartContext.Provider>

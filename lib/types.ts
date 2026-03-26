@@ -1,12 +1,20 @@
 export interface Product {
-  id: number
+  id: string
   name: string
+  slug?: string
+  price: number
   original_price: number
   description?: string
   image: string
   sizes: string[]
   stock: number
+  is_new?: boolean
+  is_promo?: boolean
   category_ids: string[]
+  categories?: {
+    name: string
+    slug: string
+  } | null
   created_at?: string
 }
 
@@ -19,7 +27,9 @@ export interface CartItem {
 export interface Category {
   id: string
   lebele: string
+  slug?: string
   description?: string
+  image?: string
 }
 
 export interface Order {

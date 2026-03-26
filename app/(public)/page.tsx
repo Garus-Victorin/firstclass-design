@@ -2,11 +2,9 @@ import { Hero } from '@/components/hero'
 import { CategoriesSection } from '@/components/categories-section'
 import { FeaturedProducts } from '@/components/featured-products'
 import { PromoBar } from '@/components/promo-bar'
-import { ReviewForm } from '@/components/review-form'
-import { ReviewsList } from '@/components/reviews-list'
-import { MapPin, Clock, Phone, Mail } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { ReviewSection } from '@/components/review-section'
+import { ContactSection } from '@/components/contact-section'
+import { MapPin, Clock, Phone } from 'lucide-react'
 
 export default function HomePage() {
   // Fonction pour déterminer le statut d'ouverture
@@ -270,11 +268,23 @@ export default function HomePage() {
             </p>
           </div>
 
-          <ReviewsList />
+          <ReviewSection />
+        </div>
+      </section>
 
-          <div className="mt-12 max-w-2xl mx-auto">
-            <ReviewForm />
+      {/* Section Nous Contacter */}
+      <section className="py-16 lg:py-24 bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              📞 Nous Contacter
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+              Une question ? Besoin d'aide ? Nous sommes là pour vous
+            </p>
           </div>
+
+          <ContactSection />
         </div>
       </section>
     </>

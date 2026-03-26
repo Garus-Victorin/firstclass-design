@@ -8,14 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -264,66 +256,59 @@ export default function AdminOrdersPage() {
         </Select>
       </div>
 
-      {/* Table */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Commande</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Livraison</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="w-24"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredOrders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.order_number}</TableCell>
-                <TableCell>
-                  <div>
-                    <p>{order.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{order.customer_phone}</p>
-                  </div>
-                </TableCell>
-                <TableCell>{formatPrice(order.total)}</TableCell>
-                <TableCell className="capitalize">
-                  {order.delivery_method === 'livraison' ? 'Livraison' : 'Retrait'}
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(order.status)}>
-                    {getStatusLabel(order.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell>{new Date(order.created_at).toLocaleDateString('fr-FR')}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setSelectedOrder(order)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Voir
-                    </Button>
-                    {order.status === 'delivered' && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => generateInvoice(order)}
-                      >
-                        <FileText className="h-4 w-4 mr-1" />
-                        Facture
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      {/* Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredOrders.map((order) => (
+          <div key={order.id} className="border border-border rounded-lg p-4 space-y-3 hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-semibold text-lg">{order.order_number}</p>
+                <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString('fr-FR')}</p>
+              </div>
+              <Badge className={getStatusColor(order.status)}>
+                {getStatusLabel(order.status)}
+              </Badge>
+            </div>
+            
+            <div className="space-y-1">
+              <p className="font-medium">{order.customer_name}</p>
+              <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
+            </div>
+            
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <div>
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="font-semibold text-lg">{formatPrice(order.total)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Livraison</p>
+                <p className="text-sm capitalize">{order.delivery_method === 'livraison' ? 'Livraison' : 'Retrait'}</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1"
+                onClick={() => setSelectedOrder(order)}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Voir
+              </Button>
+              {order.status === 'delivered' && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => generateInvoice(order)}
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  Facture
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Order Detail Dialog */}

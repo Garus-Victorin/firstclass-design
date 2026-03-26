@@ -1,21 +1,3 @@
-create table public.order_items (
-  id uuid not null default gen_random_uuid (),
-  order_id uuid not null,
-  product_id integer null,
-  product_name character varying(255) not null,
-  product_size character varying(50) null,
-  quantity integer not null default 1,
-  unit_price numeric(10, 2) not null,
-  total_price numeric(10, 2) not null,
-  created_at timestamp with time zone null default now(),
-  constraint order_items_pkey primary key (id),
-  constraint order_items_order_id_fkey foreign KEY (order_id) references orders (id) on delete CASCADE,
-  constraint order_items_product_id_fkey foreign KEY (product_id) references products (id) on delete set null
-) TABLESPACE pg_default;
-
-create index IF not exists idx_order_items_order_id on public.order_items using btree (order_id) TABLESPACE pg_default;
-
-create index IF not exists idx_order_items_product_id on public.order_items using btree (product_id) TABLESPACE pg_default;
 
 
 create table public.categories (
@@ -26,63 +8,44 @@ create table public.categories (
   constraint categories_pkey primary key (id)
 ) TABLESPACE pg_default;
 
-create table public.orders (
-  id uuid not null default gen_random_uuid (),
-  order_number character varying(50) not null,
-  customer_name character varying(255) not null,
-  customer_phone character varying(20) not null,
-  customer_email character varying(255) null,
-  customer_address text null,
-  delivery_method character varying(20) not null,
-  total numeric(10, 2) not null,
-  status character varying(20) not null default 'pending'::character varying,
-  notes text null,
-  created_at timestamp with time zone null default now(),
-  updated_at timestamp with time zone null default now(),
-  constraint orders_pkey primary key (id),
-  constraint orders_order_number_key unique (order_number),
-  constraint orders_delivery_method_check check (
-    (
-      (delivery_method)::text = any (
-        (
-          array[
-            'livraison'::character varying,
-            'retrait'::character varying
-          ]
-        )::text[]
-      )
-    )
+
+
+-- 5. CRÉER LA TABLE orders
+CREATE TABLE public.orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_number VARCHAR(50) NOT NULL UNIQUE,
+  customer_name VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(20) NOT NULL,
+  customer_email VARCHAR(255) NULL,
+  customer_address TEXT NULL,
+  delivery_method VARCHAR(20) NOT NULL,
+  total NUMERIC(10, 2) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  notes TEXT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT orders_delivery_method_check CHECK (
+    delivery_method IN ('livraison', 'retrait')
   ),
-  constraint orders_status_check check (
-    (
-      (status)::text = any (
-        (
-          array[
-            'pending'::character varying,
-            'confirmed'::character varying,
-            'shipped'::character varying,
-            'delivered'::character varying,
-            'cancelled'::character varying
-          ]
-        )::text[]
-      )
-    )
+  CONSTRAINT orders_status_check CHECK (
+    status IN ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled')
   )
-) TABLESPACE pg_default;
+);
 
-create index IF not exists idx_orders_order_number on public.orders using btree (order_number) TABLESPACE pg_default;
-
-create index IF not exists idx_orders_customer_phone on public.orders using btree (customer_phone) TABLESPACE pg_default;
-
-create index IF not exists idx_orders_status on public.orders using btree (status) TABLESPACE pg_default;
-
-create index IF not exists idx_orders_created_at on public.orders using btree (created_at desc) TABLESPACE pg_default;
-
-create trigger update_orders_updated_at BEFORE
-update on orders for EACH row
-execute FUNCTION update_updated_at_column ();
-
-
+-- 6. CRÉER LA TABLE order_items (IMPORTANT!)
+CREATE TABLE public.order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID NOT NULL,
+  product_id INTEGER NULL,
+  product_name VARCHAR(255) NOT NULL,
+  product_size VARCHAR(50) NULL,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  unit_price NUMERIC(10, 2) NOT NULL,
+  total_price NUMERIC(10, 2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  CONSTRAINT order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
 
 create table public.products (
   id serial not null,

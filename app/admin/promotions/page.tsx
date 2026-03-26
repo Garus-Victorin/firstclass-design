@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import {
   Select,
@@ -53,6 +54,8 @@ interface Promotion {
 export default function AdminPromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [promotionToDelete, setPromotionToDelete] = useState<Promotion | null>(null)
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null)
   const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({
@@ -65,6 +68,7 @@ export default function AdminPromotionsPage() {
     end_date: '',
     is_active: true
   })
+  const [dateError, setDateError] = useState('')
 
   useEffect(() => {
     fetchPromotions()
@@ -87,6 +91,7 @@ export default function AdminPromotionsPage() {
   }
 
   const handleOpenDialog = (promotion?: Promotion) => {
+    setDateError('')
     if (promotion) {
       setEditingPromotion(promotion)
       setFormData({
@@ -101,13 +106,14 @@ export default function AdminPromotionsPage() {
       })
     } else {
       setEditingPromotion(null)
+      const today = new Date().toISOString().split('T')[0]
       setFormData({
         name: '',
         code: '',
         type: 'percentage',
         value: '',
         min_order: '0',
-        start_date: '',
+        start_date: today,
         end_date: '',
         is_active: true
       })
@@ -115,8 +121,38 @@ export default function AdminPromotionsPage() {
     setIsDialogOpen(true)
   }
 
+  const validateDates = (startDate: string, endDate: string): boolean => {
+    if (!startDate || !endDate) return true
+    
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    
+    if (end <= start) {
+      setDateError('La date de fin doit être après la date de début')
+      return false
+    }
+    
+    setDateError('')
+    return true
+  }
+
+  const handleDateChange = (field: 'start_date' | 'end_date', value: string) => {
+    const newFormData = { ...formData, [field]: value }
+    setFormData(newFormData)
+    
+    if (field === 'start_date' && newFormData.end_date) {
+      validateDates(value, newFormData.end_date)
+    } else if (field === 'end_date' && newFormData.start_date) {
+      validateDates(newFormData.start_date, value)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateDates(formData.start_date, formData.end_date)) {
+      return
+    }
     
     const promotionData = {
       name: formData.name,
@@ -155,8 +191,6 @@ export default function AdminPromotionsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')) return
-    
     const { error } = await supabase
       .from('promotions')
       .delete()
@@ -167,6 +201,13 @@ export default function AdminPromotionsPage() {
     } else {
       fetchPromotions()
     }
+    setIsDeleteDialogOpen(false)
+    setPromotionToDelete(null)
+  }
+
+  const openDeleteDialog = (promo: Promotion) => {
+    setPromotionToDelete(promo)
+    setIsDeleteDialogOpen(true)
   }
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
@@ -282,7 +323,8 @@ export default function AdminPromotionsPage() {
                     id="start_date"
                     type="date"
                     value={formData.start_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                    onChange={(e) => handleDateChange('start_date', e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
                     required
                   />
                 </div>
@@ -292,16 +334,22 @@ export default function AdminPromotionsPage() {
                     id="end_date"
                     type="date"
                     value={formData.end_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
+                    onChange={(e) => handleDateChange('end_date', e.target.value)}
+                    min={formData.start_date || new Date().toISOString().split('T')[0]}
                     required
                   />
                 </div>
               </div>
+              {dateError && (
+                <div className="text-sm text-red-600 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md p-3">
+                  ⚠️ {dateError}
+                </div>
+              )}
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit">
+                <Button type="submit" disabled={!!dateError}>
                   {editingPromotion ? 'Enregistrer' : 'Créer'}
                 </Button>
               </div>
@@ -365,7 +413,7 @@ export default function AdminPromotionsPage() {
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive"
-                        onClick={() => handleDelete(promo.id)}
+                        onClick={() => openDeleteDialog(promo)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Supprimer
@@ -378,6 +426,31 @@ export default function AdminPromotionsPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer la promotion <strong>{promotionToDelete?.name}</strong> (code: <code className="bg-muted px-1 py-0.5 rounded">{promotionToDelete?.code}</code>) ?
+              <br /><br />
+              Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => promotionToDelete && handleDelete(promotionToDelete.id)}
+            >
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
