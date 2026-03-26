@@ -58,4 +58,14 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
   return data || [];
 }
 
+export async function getActiveReviews() {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data || [];
+}
 

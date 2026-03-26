@@ -1,53 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ChevronDown, ChevronUp, Star, Send, User } from 'lucide-react'
-
-const SAMPLE_REVIEWS = [
-  {
-    id: 1,
-    name: 'Aminata K.',
-    rating: 5,
-    comment: 'Excellente boutique ! J\'ai trouvé exactement ce que je cherchais. La qualité des vêtements est top et le service client est irréprochable.',
-    date: '15 Mars 2024'
-  },
-  {
-    id: 2,
-    name: 'Jean-Paul D.',
-    rating: 5,
-    comment: 'Très satisfait de mon achat. Les produits sont de qualité premium et les prix sont raisonnables. Je recommande vivement First Class !',
-    date: '10 Mars 2024'
-  },
-  {
-    id: 3,
-    name: 'Fatoumata S.',
-    rating: 4,
-    comment: 'Belle collection de vêtements tendance. L\'accueil est chaleureux et les conseils sont pertinents. Une adresse à retenir à Cotonou.',
-    date: '5 Mars 2024'
-  },
-  {
-    id: 4,
-    name: 'Mohamed A.',
-    rating: 5,
-    comment: 'Superbe expérience d\'achat ! Large choix de produits pour toute la famille. La boutique est bien située et facile d\'accès. Bravo !',
-    date: '1 Mars 2024'
-  }
-]
+import { getActiveReviews } from '@/lib/data'
 
 export function ReviewSection() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
+  const [reviews, setReviews] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        const data = await getActiveReviews()
+        // Sélectionner 4 avis aléatoires
+        const shuffled = [...data].sort(() => Math.random() - 0.5)
+        setReviews(shuffled.slice(0, 4))
+      } catch (error) {
+        console.error('Erreur chargement avis:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadReviews()
+  }, [])
+
+  if (loading) {
+    return <div className="text-center py-8">Chargement des avis...</div>
+  }
+
+  if (reviews.length === 0) {
+    return <div className="text-center py-8 text-muted-foreground">Aucun avis pour le moment</div>
+  }
 
   return (
     <div className="space-y-8">
       {/* Liste des avis */}
       <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        {SAMPLE_REVIEWS.map((review) => (
+        {reviews.map((review) => (
           <Card key={review.id} className="p-6">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-accent/10 rounded-full">
@@ -55,8 +51,14 @@ export function ReviewSection() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">{review.name}</h4>
-                  <span className="text-xs text-muted-foreground">{review.date}</span>
+                  <h4 className="font-semibold">{review.customer_name}</h4>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(review.created_at).toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
                 </div>
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, i) => (
