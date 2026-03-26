@@ -6,33 +6,47 @@ import { Product } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Check } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCart()
+  const { addItem, items, removeItem } = useCart()
   const [isAdding, setIsAdding] = useState(false)
 
   // Utiliser original_price comme prix principal
   const productPrice = Number(product.original_price) || Number(product.price) || 0
 
+  // Vérifier si le produit est dans le panier
+  const isInCart = useMemo(() => {
+    return items.some(item => item.product.id === product.id)
+  }, [items, product.id])
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    setIsAdding(true)
-    
     const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'Unique'
-    addItem(product, defaultSize, 1)
     
-    setTimeout(() => {
-      setIsAdding(false)
-    }, 1000)
+    if (isInCart) {
+      // Retirer du panier - trouver tous les items de ce produit et les retirer
+      const itemsToRemove = items.filter(item => item.product.id === product.id)
+      itemsToRemove.forEach(item => {
+        removeItem(product.id, item.size)
+      })
+    } else {
+      // Ajouter au panier
+      setIsAdding(true)
+      addItem(product, defaultSize, 1)
+      
+      setTimeout(() => {
+        setIsAdding(false)
+      }, 1000)
+    }
   }
 
   return (
@@ -74,12 +88,25 @@ export function ProductCard({ product }: ProductCardProps) {
           
           <Button
             size="sm"
-            className="w-full sm:w-auto gap-1.5 h-9 sm:h-8 bg-orange-500 hover:bg-orange-600 text-white font-medium text-xs sm:text-sm"
+            className={`w-full sm:w-auto gap-1.5 h-9 sm:h-8 font-medium text-xs sm:text-sm ${
+              isInCart 
+                ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                : 'bg-orange-500 hover:bg-orange-600 text-white'
+            }`}
             onClick={handleAddToCart}
-            disabled={product.stock === 0 || isAdding}
+            disabled={product.stock === 0}
           >
-            <ShoppingCart className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-            <span className="whitespace-nowrap">{isAdding ? 'Ajouté !' : 'Ajouter au panier'}</span>
+            {isInCart ? (
+              <>
+                <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                <span className="whitespace-nowrap">Ajouté</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                <span className="whitespace-nowrap">{isAdding ? 'Ajout...' : 'Ajouter au panier'}</span>
+              </>
+            )}
           </Button>
         </div>
       </div>

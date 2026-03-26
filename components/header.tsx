@@ -147,7 +147,7 @@ export function Header() {
             {/* Logo */}
             <div className="flex items-center gap-3">
               <div 
-                onClick={() => router.push('/')} 
+                onClick={() => router.push('/admin/login')} 
                 className="cursor-pointer relative w-10 h-10"
               >
                 <Image 

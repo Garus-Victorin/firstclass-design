@@ -1,19 +1,27 @@
+'use client'
+
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Facebook, MessageCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { MapPin, Phone, Mail, Facebook } from 'lucide-react'
 import { WHATSAPP_NUMBER, GOOGLE_MAPS_URL } from '@/lib/data'
 
 export function Footer() {
+  const router = useRouter()
+  
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="inline-block">
+            <span 
+              onClick={() => router.push('/admin/login')}
+              className="inline-block cursor-pointer hover:opacity-80 transition-opacity"
+            >
               <span className="text-2xl font-bold tracking-tight">
                 FIRST CLASS <span className="text-accent">DESIGN</span>
               </span>
-            </Link>
+            </span>
             <p className="mt-4 text-sm text-primary-foreground/70 leading-relaxed">
               Votre destination premium pour des vêtements de qualité exceptionnelle. Style, élégance et raffinement.
             </p>

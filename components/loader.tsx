@@ -13,14 +13,31 @@ const loadingMessages = [
 
 export function Loader() {
   const [messageIndex, setMessageIndex] = useState(0)
+  const [displayedText, setDisplayedText] = useState('')
+  const [charIndex, setCharIndex] = useState(0)
 
+  const currentMessage = loadingMessages[messageIndex]
+
+  // Animation lettre par lettre
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
-    }, 2000)
+    if (charIndex < currentMessage.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(currentMessage.slice(0, charIndex + 1))
+        setCharIndex(charIndex + 1)
+      }, 50) // 50ms entre chaque lettre
 
-    return () => clearInterval(interval)
-  }, [])
+      return () => clearTimeout(timeout)
+    } else {
+      // Attendre 2 secondes avant de passer au message suivant
+      const timeout = setTimeout(() => {
+        setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
+        setCharIndex(0)
+        setDisplayedText('')
+      }, 2000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [charIndex, currentMessage, messageIndex])
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
@@ -36,12 +53,11 @@ export function Loader() {
           />
         </div>
         
-        {/* Nom avec soulignement */}
+        {/* Nom sans soulignement */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-orange-500 mb-2">
+          <h1 className="text-2xl font-bold text-orange-500">
             FIRST CLASS DESIGN
           </h1>
-          <div className="h-1 w-full bg-orange-500 rounded-full" />
         </div>
       </div>
 
@@ -59,9 +75,10 @@ export function Loader() {
         ))}
       </div>
 
-      {/* Message dynamique */}
-      <p className="text-muted-foreground text-sm animate-fade-in">
-        {loadingMessages[messageIndex]}
+      {/* Message dynamique avec animation lettre par lettre */}
+      <p className="text-muted-foreground text-sm h-6">
+        {displayedText}
+        <span className="animate-pulse">|</span>
       </p>
     </div>
   )

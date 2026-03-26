@@ -6,7 +6,6 @@ import { SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatPrice } from '@/lib/data'
 import type { Product, Category as CategoryType } from '@/lib/types'
-// import type { SupabaseProduct } from './page'
 
 import { ProductCard } from '@/components/product-card'
 import { Button } from '@/components/ui/button'
@@ -28,29 +27,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const priceRanges = [
-  { min: 0, max: 100000, label: 'Moins de 100 000 FCFA' },
-  { min: 100000, max: 200000, label: '100 000 - 200 000 FCFA' },
-  { min: 200000, max: 300000, label: '200 000 - 300 000 FCFA' },
-  { min: 300000, max: Infinity, label: 'Plus de 300 000 FCFA' },
-]
-
-interface SupabaseProduct extends Product {
-  categories: {
-    lebele: string
-  } | null
-}
-
 function CatalogueContent() {
   const searchParams = useSearchParams()
-  const initialCategory = searchParams.get('category') || ''
+  const categoryParam = searchParams.get('category')
   
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialCategory ? [initialCategory] : []
-  )
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000])
   const [sortBy, setSortBy] = useState('featured')
-const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<CategoryType[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -59,11 +43,15 @@ const [products, setProducts] = useState<Product[]>([])
   }, [])
 
   useEffect(() => {
-    const category = searchParams.get('category')
-    if (category) {
-      setSelectedCategories([category])
+    if (categoryParam && categories.length > 0) {
+      const category = categories.find(cat => cat.slug === categoryParam)
+      if (category) {
+        setSelectedCategories([category.id])
+      }
+    } else if (!categoryParam) {
+      setSelectedCategories([])
     }
-  }, [searchParams])
+  }, [categoryParam, categories])
 
   const fetchData = async () => {
     const { data: productsData } = await supabase
@@ -110,13 +98,13 @@ const [products, setProducts] = useState<Product[]>([])
     }
 
     return filtered
-  }, [products, selectedCategories, priceRange, sortBy, categories])
+  }, [products, selectedCategories, priceRange, sortBy])
 
-  const toggleCategory = (id: string) => {
+  const toggleCategory = (categoryId: string) => {
     setSelectedCategories(prev =>
-      prev.includes(id)
-        ? prev.filter(c => c !== id)
-        : [...prev, id]
+      prev.includes(categoryId)
+        ? prev.filter(c => c !== categoryId)
+        : [...prev, categoryId]
     )
   }
 
@@ -132,7 +120,6 @@ const [products, setProducts] = useState<Product[]>([])
 
   const FiltersContent = () => (
     <div className="space-y-6">
-      {/* Categories */}
       <div>
         <h3 className="font-semibold mb-3">Catégories</h3>
         <div className="space-y-2">
@@ -144,14 +131,13 @@ const [products, setProducts] = useState<Product[]>([])
                 onCheckedChange={() => toggleCategory(category.id)}
               />
               <Label htmlFor={`cat-${category.id}`} className="text-sm cursor-pointer">
-                {category.lebele}
+                {category.name}
               </Label>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Price Range */}
       <div>
         <h3 className="font-semibold mb-3">Prix</h3>
         <div className="px-2">
@@ -170,14 +156,6 @@ const [products, setProducts] = useState<Product[]>([])
         </div>
       </div>
 
-      {/* Options */}
-      <div>
-        <h3 className="font-semibold mb-3">Options</h3>
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Aucune option disponible</p>
-        </div>
-      </div>
-
       {hasActiveFilters && (
         <Button variant="outline" onClick={clearFilters} className="w-full">
           <X className="h-4 w-4 mr-2" />
@@ -190,7 +168,6 @@ const [products, setProducts] = useState<Product[]>([])
   return (
     <div className="py-8 lg:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
@@ -202,7 +179,6 @@ const [products, setProducts] = useState<Product[]>([])
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Mobile filters */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" className="lg:hidden">
@@ -225,7 +201,6 @@ const [products, setProducts] = useState<Product[]>([])
               </SheetContent>
             </Sheet>
 
-            {/* Sort */}
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Trier par" />
@@ -241,7 +216,6 @@ const [products, setProducts] = useState<Product[]>([])
         </div>
 
         <div className="flex gap-8">
-          {/* Desktop Filters */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
             <div className="sticky top-32">
               <h2 className="font-semibold text-lg mb-6">Filtres</h2>
@@ -249,7 +223,6 @@ const [products, setProducts] = useState<Product[]>([])
             </div>
           </aside>
 
-          {/* Products Grid */}
           <div className="flex-1">
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">

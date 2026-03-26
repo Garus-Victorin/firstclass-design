@@ -25,7 +25,9 @@ export interface CartItem {
 
 export interface Category {
   id: string
-  lebele: string
+  name: string
+  slug: string
+  image?: string
   description?: string
   created_at?: string
 }
